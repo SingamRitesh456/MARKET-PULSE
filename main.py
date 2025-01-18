@@ -110,18 +110,22 @@ def marketpulse():
     chart_type = st.sidebar.selectbox("Select Chart Type", ["Line Chart", "Bar Chart", "Candlestick Chart"])
 
     # Fetch stock data
-    try:
-        data = yf.download(ticker, start=start_date, end=end_date)
-        if data.empty:
-            st.warning("No data available for the selected ticker and date range.")
-            return
-
-        if "Adj Close" not in data.columns:
-            st.error("The selected ticker does not provide adjusted close prices. Check the ticker symbol or try another stock.")
-            return
-    except Exception as e:
-        st.error(f"Error fetching data: {e}")
+try:
+    data = yf.download(ticker, start=start_date, end=end_date)
+    if data.empty:
+        st.warning("No data available for the selected ticker and date range.")
         return
+
+    required_columns = ["Adj Close", "Open", "High", "Low"]
+    missing_columns = [col for col in required_columns if col not in data.columns]
+    if missing_columns:
+        st.error(f"The selected ticker does not provide the following required columns: {', '.join(missing_columns)}. "
+                 f"Check the ticker symbol or try another stock.")
+        return
+except Exception as e:
+    st.error(f"Error fetching data: {e}")
+    return
+
 
     # Chart rendering
     if chart_type == "Line Chart":
