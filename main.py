@@ -2,7 +2,7 @@ import streamlit as st
 import yfinance as yf
 import plotly.express as px
 import plotly.graph_objects as go
-from datetime import datetime
+from datetime import datetime, timedelta
 import numpy as np
 from alpha_vantage.fundamentaldata import FundamentalData
 from stocknews import StockNews
@@ -40,26 +40,21 @@ def fetch_fundamental_data(ticker):
     except Exception as e:
         raise Exception(f"Failed to fetch data from Yahoo Finance: {e}")
 
+# Fetch stock news
 def fetch_stock_news(ticker):
     sn = StockNews(ticker, save_news=False)
     try:
-        # Fetch the news data
         news_df = sn.read_rss()
         if news_df.empty:
             return []
 
-        # Filter news articles that mention the ticker in the title or summary
         filtered_news = news_df[
             (news_df['title'].str.contains(ticker, case=False, na=False)) |
             (news_df['summary'].str.contains(ticker, case=False, na=False))
         ]
-
-        # Return filtered news or all news if no match is found
         return filtered_news if not filtered_news.empty else news_df
     except Exception as e:
         return []
-
-
 
 # Calculate RSI
 def calculate_rsi(data, window=14):
@@ -68,13 +63,9 @@ def calculate_rsi(data, window=14):
     loss = -delta.where(delta < 0, 0).rolling(window=window).mean()
     rs = gain / loss
     rsi = 100 - (100 / (1 + rs))
-    return rsi.squeeze()
+    return rsi
 
 # Sentiment indicator images
-def load_image_as_base64(image_path):
-    with open(image_path, "rb") as img_file:
-        return base64.b64encode(img_file.read()).decode()
-
 def get_rsi_image(rsi):
     if rsi < 30:
         return "GREEN.png"
@@ -90,7 +81,6 @@ def get_rsi_image(rsi):
 # GROQ AI Configuration
 GROQ_API_KEY = "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"
 def generate_response(prompt):
-    """Generate response using GROQ AI."""
     headers = {
         "Authorization": f"Bearer {GROQ_API_KEY}",
         "Content-Type": "application/json",
@@ -126,8 +116,9 @@ def marketpulse():
     chart_type = st.sidebar.selectbox("Select Chart Type", ["Line Chart", "Bar Chart", "Candlestick Chart"])
 
     # Fetch stock data
+    extended_start_date = start_date - timedelta(days=14)
     try:
-        data = yf.download(ticker, start=start_date, end=end_date)
+        data = yf.download(ticker, start=extended_start_date, end=end_date)
         if data.empty:
             st.warning("No data available for the selected ticker and date range.")
             return
@@ -201,23 +192,24 @@ def marketpulse():
                     st.subheader(f"{i + 1}. {news_df['title'][i]}")
                     st.write(news_df['published'][i])
                     st.write(news_df['summary'][i])
-                    # Add a clickable link for the article
                     if 'link' in news_df.columns and news_df['link'][i]:
                         st.markdown(f"[Read more]({news_df['link'][i]})", unsafe_allow_html=True)
         except Exception as e:
             st.error(f"Failed to fetch news for {ticker}. Error: {e}")
 
-
     with tabs[3]:  # Sentiment Indicator
         st.write(f"Sentiment Indicator for {ticker}")
         try:
-            data['RSI'] = calculate_rsi(data)
-            current_rsi = data['RSI'].iloc[-1]
-            st.write(f"RSI for {ticker}: {current_rsi:.2f}")
+            if len(data) < 14:
+                st.warning(f"Not enough data points to calculate RSI for {ticker}. Please select a larger date range.")
+            else:
+                data['RSI'] = calculate_rsi(data)
+                current_rsi = data['RSI'].iloc[-1]
+                st.write(f"RSI for {ticker}: {current_rsi:.2f}")
 
-            # Display corresponding image
-            image_file = get_rsi_image(current_rsi)
-            st.image(image_file)
+                # Display corresponding image
+                image_file = get_rsi_image(current_rsi)
+                st.image(image_file, caption=f"Sentiment Indicator: {current_rsi:.2f}")
         except Exception as e:
             st.error("Failed to calculate RSI.")
 
@@ -243,6 +235,7 @@ def marketpulse():
         for chat in st.session_state.chat_history:
             st.markdown(f"**You:** {chat['user']}")
             st.markdown(f"**Bot:** {chat['bot']}\n---")
+
 # Run the app
 if __name__ == "__main__":
     marketpulse()
