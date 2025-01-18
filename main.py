@@ -194,7 +194,7 @@ def marketpulse():
             st.error(f"Failed to fetch news for {ticker}.")
 
     with tabs[3]:  # Sentiment Indicator
-        st.write("Sentiment Indicator for {ticker}")
+        st.write(f"Sentiment Indicator for {ticker}")
         try:
             data['RSI'] = calculate_rsi(data)
             current_rsi = data['RSI'].iloc[-1]
