@@ -165,7 +165,7 @@ def marketpulse():
     tabs = st.tabs(["Pricing Data", "Fundamental Data", "News", "Sentiment Indicator", "Mpulse Chatbot"])
 
     with tabs[0]:  # Pricing Data
-        st.write("Pricing Data")
+        st.write(f"Pricing Data for {ticker}")
         st.write(data.describe())
 
     with tabs[1]:  # Fundamental Data
