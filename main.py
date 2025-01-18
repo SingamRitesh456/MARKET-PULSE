@@ -117,7 +117,8 @@ def marketpulse():
             return
 
         if "Adj Close" not in data.columns:
-            data["Adj Close"] = data["Close"]
+            st.error("The selected ticker does not provide adjusted close prices. Check the ticker symbol or try another stock.")
+            return
     except Exception as e:
         st.error(f"Error fetching data: {e}")
         return
@@ -198,34 +199,19 @@ def marketpulse():
         except Exception as e:
             st.error("Failed to calculate RSI.")
 
-    '''with tabs[4]:  # Mpulse Chatbot
-        st.title("Mpulse Chatbot")
-        st.write("Ask your questions about stock performance, trends, or other topics!")
-
-        if "chat_history" not in st.session_state:
-            st.session_state["chat_history"] = []
-
-        user_input = st.text_input("You: ", key="user_input")
-        if user_input:
-            response = generate_response(user_input)
-            st.session_state.chat_history.insert(0, {"user": user_input, "bot": response})
-
-        for chat in st.session_state.chat_history:
-            st.markdown(f"**You:** {chat['user']}")
-            st.markdown(f"**Bot:** {chat['bot']}\n---")'''
     with tabs[4]:  # Mpulse Chatbot
         st.title("Mpulse Chatbot")
         st.write("Ask your questions about stock performance, trends, or other topics!")
 
         if "chat_history" not in st.session_state:
             st.session_state["chat_history"] = []
-    
+        
         if "chat_submitted" not in st.session_state:
             st.session_state["chat_submitted"] = False
 
         user_input = st.text_input("You: ", key="user_input")
-    
-    # Check if the user submits a new input
+        
+        # Check if the user submits a new input
         if st.button("Ask"):
             if user_input.strip():  # Only respond if the input is not empty
                 st.session_state.chat_submitted = True  # Mark that a question was submitted
@@ -233,12 +219,13 @@ def marketpulse():
                 st.session_state.chat_history.insert(0, {"user": user_input, "bot": response})
                 st.session_state.user_input = ""  # Clear the input field
 
-    # Display chat history
-        for chat in st.session_state.chat_history:
-            st.markdown(f"**You:** {chat['user']}")
-            st.markdown(f"**Bot:** {chat['bot']}\n---")
+        # Display chat history
+        if st.session_state.chat_history:
+            for chat in st.session_state.chat_history:
+                st.markdown(f"**You:** {chat['user']}")
+                st.markdown(f"**Bot:** {chat['bot']}\n---")
 
-    # Reset `chat_submitted` on every page load
+        # Reset `chat_submitted` on every page load
         st.session_state.chat_submitted = False
 
 # Run the app
