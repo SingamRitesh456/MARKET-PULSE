@@ -229,7 +229,7 @@ def marketpulse():
     # Reset `chat_submitted` on every page load
     st.session_state.chat_submitted = False
 
-        '''st.title("Mpulse Chatbot")
+    '''st.title("Mpulse Chatbot")
         st.write("Ask your questions about stock performance, trends, or other topics!")
 
         if "chat_history" not in st.session_state:
