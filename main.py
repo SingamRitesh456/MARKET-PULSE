@@ -204,15 +204,28 @@ def marketpulse():
 
         if "chat_history" not in st.session_state:
             st.session_state["chat_history"] = []
+        
+        if "chat_submitted" not in st.session_state:
+            st.session_state["chat_submitted"] = False
 
         user_input = st.text_input("You: ", key="user_input")
-        if user_input:
-            response = generate_response(user_input)
-            st.session_state.chat_history.insert(0, {"user": user_input, "bot": response})
+        
+        # Check if the user submits a new input
+        if st.button("Ask"):
+            if user_input.strip():  # Only respond if the input is not empty
+                st.session_state.chat_submitted = True  # Mark that a question was submitted
+                response = generate_response(user_input)
+                st.session_state.chat_history.insert(0, {"user": user_input, "bot": response})
+                st.session_state.user_input = ""  # Clear the input field
 
-        for chat in st.session_state.chat_history:
-            st.markdown(f"**You:** {chat['user']}")
-            st.markdown(f"**Bot:** {chat['bot']}\n---")
+        # Display chat history
+        if st.session_state.chat_history:
+            for chat in st.session_state.chat_history:
+                st.markdown(f"**You:** {chat['user']}")
+                st.markdown(f"**Bot:** {chat['bot']}\n---")
+
+        # Reset `chat_submitted` on every page load
+        st.session_state.chat_submitted = False
 
 # Run the app
 if __name__ == "__main__":
