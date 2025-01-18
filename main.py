@@ -198,7 +198,7 @@ def marketpulse():
         except Exception as e:
             st.error("Failed to calculate RSI.")
 
-    with tabs[4]:  # Mpulse Chatbot
+    '''with tabs[4]:  # Mpulse Chatbot
         st.title("Mpulse Chatbot")
         st.write("Ask your questions about stock performance, trends, or other topics!")
 
@@ -212,7 +212,34 @@ def marketpulse():
 
         for chat in st.session_state.chat_history:
             st.markdown(f"**You:** {chat['user']}")
-            st.markdown(f"**Bot:** {chat['bot']}\n---")
+            st.markdown(f"**Bot:** {chat['bot']}\n---")'''
+    with tabs[4]:  # Mpulse Chatbot
+    st.title("Mpulse Chatbot")
+    st.write("Ask your questions about stock performance, trends, or other topics!")
+
+    if "chat_history" not in st.session_state:
+        st.session_state["chat_history"] = []
+    
+    if "chat_submitted" not in st.session_state:
+        st.session_state["chat_submitted"] = False
+
+    user_input = st.text_input("You: ", key="user_input")
+    
+    # Check if the user submits a new input
+    if st.button("Ask"):
+        if user_input.strip():  # Only respond if the input is not empty
+            st.session_state.chat_submitted = True  # Mark that a question was submitted
+            response = generate_response(user_input)
+            st.session_state.chat_history.insert(0, {"user": user_input, "bot": response})
+            st.session_state.user_input = ""  # Clear the input field
+
+    # Display chat history
+    for chat in st.session_state.chat_history:
+        st.markdown(f"**You:** {chat['user']}")
+        st.markdown(f"**Bot:** {chat['bot']}\n---")
+
+    # Reset `chat_submitted` on every page load
+    st.session_state.chat_submitted = False
 
 # Run the app
 if __name__ == "__main__":
