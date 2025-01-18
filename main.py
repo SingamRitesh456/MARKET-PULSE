@@ -169,7 +169,7 @@ def marketpulse():
         st.write(data.describe())
 
     with tabs[1]:  # Fundamental Data
-        st.write("Fundamental Data")
+        st.write(f"Fundamental Data for {ticker}")
         try:
             balance_sheet, income_statement, cash_flow = fetch_fundamental_data(ticker)
             st.subheader("Balance Sheet")
