@@ -32,7 +32,6 @@ def analyze_stock(ticker):
 def fetch_fundamental_data(ticker):
     stock = yf.Ticker(ticker)
     try:
-        # Fetch financial data
         balance_sheet = stock.balance_sheet
         income_statement = stock.financials
         cash_flow = stock.cashflow
