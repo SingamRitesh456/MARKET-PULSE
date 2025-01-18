@@ -202,7 +202,7 @@ def marketpulse():
 
             # Display corresponding image
             image_file = get_rsi_image(current_rsi)
-            st.image(image_file, caption=f"Sentiment Indicator: {current_rsi:.2f}")
+            st.image(image_file)
         except Exception as e:
             st.error("Failed to calculate RSI.")
 
