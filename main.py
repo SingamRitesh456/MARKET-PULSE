@@ -101,6 +101,10 @@ def marketpulse():
     # Sidebar
     st.sidebar.title("Options")
     ticker = st.sidebar.text_input("Custom Ticker", value="TSLA")
+    if not ticker.strip():
+        st.error("Please enter a valid stock ticker symbol.")
+        return
+
     start_date = st.sidebar.date_input("Start Date", value=datetime(2024, 1, 1))
     end_date = st.sidebar.date_input("End Date", value=datetime(2024, 11, 23))
     chart_type = st.sidebar.selectbox("Select Chart Type", ["Line Chart", "Bar Chart", "Candlestick Chart"])
@@ -111,6 +115,9 @@ def marketpulse():
         if data.empty:
             st.warning("No data available for the selected ticker and date range.")
             return
+
+        if "Adj Close" not in data.columns:
+            data["Adj Close"] = data["Close"]
     except Exception as e:
         st.error(f"Error fetching data: {e}")
         return
@@ -120,16 +127,20 @@ def marketpulse():
         fig = px.line(
             data.reset_index(),
             x="Date",
-            y=data["Adj Close"].values.flatten(),
+            y="Adj Close",
             title=f"{ticker} - Line Chart"
         )
+        st.plotly_chart(fig)
+
     elif chart_type == "Bar Chart":
         fig = px.bar(
             data.reset_index(),
             x="Date",
-            y=data["Adj Close"].values.flatten(),
+            y="Adj Close",
             title=f"{ticker} - Bar Chart"
         )
+        st.plotly_chart(fig)
+
     elif chart_type == "Candlestick Chart":
         fig = go.Figure(
             data=[go.Candlestick(
@@ -141,7 +152,7 @@ def marketpulse():
             )]
         )
         fig.update_layout(title=f"{ticker} - Candlestick Chart")
-    st.plotly_chart(fig)
+        st.plotly_chart(fig)
 
     # Tabs
     tabs = st.tabs(["Pricing Data", "Fundamental Data", "News", "Sentiment Indicator", "Mpulse Chatbot"])
