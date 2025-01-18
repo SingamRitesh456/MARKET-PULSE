@@ -122,9 +122,9 @@ try:
         st.error(f"The selected ticker does not provide the following required columns: {', '.join(missing_columns)}. "
                  f"Check the ticker symbol or try another stock.")
         return
-except Exception as e:
+    except Exception as e:
     st.error(f"Error fetching data: {e}")
-    return
+        return
 
 
     # Chart rendering
