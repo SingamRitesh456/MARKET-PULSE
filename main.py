@@ -177,13 +177,22 @@ def marketpulse():
         st.write(f"News for {ticker}")
         try:
             news_df = fetch_stock_news(ticker)
-            for i in range(min(10, len(news_df))):
-                st.subheader(f"{i + 1}. {news_df['title'][i]}")
-                st.write(news_df['published'][i])
-                st.write(news_df['summary'][i])
-                st.markdown(f"[Read More]({news_df['link'][i]})", unsafe_allow_html=True)
+            if news_df.empty:
+                st.warning(f"No news available for {ticker}.")
+            else:
+                for i in range(min(10, len(news_df))):
+                    st.subheader(f"{i + 1}. {news_df['title'][i]}")
+                    st.write(news_df['published'][i])
+                    st.write(news_df['summary'][i])
+                
+                # Check if the 'link' field is present and non-empty
+                    if 'link' in news_df.columns and news_df['link'][i]:
+                        st.markdown(f"[Read More]({news_df['link'][i]})", unsafe_allow_html=True)
+                    else:
+                        st.write("No detailed article available.")
         except Exception as e:
-            st.error(f"Failed to fetch news for {ticker}.")
+            st.error(f"Failed to fetch news for {ticker}: {e}")
+
 
     with tabs[3]:  # Sentiment Indicator
         st.write(f"Sentiment Indicator for {ticker}")
