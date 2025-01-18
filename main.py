@@ -190,8 +190,8 @@ def marketpulse():
                     st.write(news_df['published'].iloc[i])
                     st.write(news_df['summary'].iloc[i])
                     st.markdown(f"[Read more]({news_df['link'].iloc[i]})")
-        except Exception as e:
-            st.error(f"Failed to fetch news for {ticker}.")
+        #except Exception as e:
+            #st.error(f"Failed to fetch news for {ticker}.")
 
     with tabs[3]:  # Sentiment Indicator
         st.write(f"Sentiment Indicator for {ticker}")
