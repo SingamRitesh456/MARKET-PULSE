@@ -182,6 +182,7 @@ def marketpulse():
                 st.subheader(f"{i + 1}. {news_df['title'][i]}")
                 st.write(news_df['published'][i])
                 st.write(news_df['summary'][i])
+                st.markdown(f"[Read More]({news_df['link'][i]})", unsafe_allow_html=True)
         except Exception as e:
             st.error(f"Failed to fetch news for {ticker}.")
 
