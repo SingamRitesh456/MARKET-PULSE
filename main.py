@@ -198,17 +198,16 @@ def marketpulse():
         except Exception as e:
             st.error("Failed to calculate RSI.")
 
-    # Mpulse Chatbot
-with st.expander("Mpulse Chatbot"):
-    st.title("Mpulse Chatbot")
-    st.write("Ask your questions about stock performance, trends, or other topics!")
+    with tabs[4]:  # Mpulse Chatbot
+        st.title("Mpulse Chatbot")
+        st.write("Ask your questions about stock performance, trends, or other topics!")
 
     # Initialize session states for chat history and submission tracking
-    if "chat_history" not in st.session_state:
-        st.session_state["chat_history"] = []
+        if "chat_history" not in st.session_state:
+            st.session_state["chat_history"] = []
 
-    if "chat_submitted" not in st.session_state:
-        st.session_state["chat_submitted"] = False
+        if "chat_submitted" not in st.session_state:
+            st.session_state["chat_submitted"] = False
 
     # Input field for user question
     user_input = st.text_input("You:", key="user_input")
@@ -230,9 +229,7 @@ with st.expander("Mpulse Chatbot"):
     # Reset `chat_submitted` on every page load
     st.session_state.chat_submitted = False
 
-
-    '''with tabs[4]:  # Mpulse Chatbot
-        st.title("Mpulse Chatbot")
+        '''st.title("Mpulse Chatbot")
         st.write("Ask your questions about stock performance, trends, or other topics!")
 
         if "chat_history" not in st.session_state:
