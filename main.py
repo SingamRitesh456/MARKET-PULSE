@@ -40,14 +40,26 @@ def fetch_fundamental_data(ticker):
     except Exception as e:
         raise Exception(f"Failed to fetch data from Yahoo Finance: {e}")
 
-# Fetch stock news
 def fetch_stock_news(ticker):
     sn = StockNews(ticker, save_news=False)
-    news_df = sn.read_rss()
-    # Filter news articles that mention the ticker in the title or summary
-    filtered_news = news_df[(news_df['title'].str.contains(ticker, case=False, na=False)) |
-                            (news_df['summary'].str.contains(ticker, case=False, na=False))]
-    return filtered_news
+    try:
+        # Fetch the news data
+        news_df = sn.read_rss()
+        if news_df.empty:
+            return []
+
+        # Filter news articles that mention the ticker in the title or summary
+        filtered_news = news_df[
+            (news_df['title'].str.contains(ticker, case=False, na=False)) |
+            (news_df['summary'].str.contains(ticker, case=False, na=False))
+        ]
+
+        # Return filtered news or all news if no match is found
+        return filtered_news if not filtered_news.empty else news_df
+    except Exception as e:
+        return []
+
+
 
 # Calculate RSI
 def calculate_rsi(data, window=14):
@@ -179,15 +191,22 @@ def marketpulse():
             st.error("Failed to fetch fundamental data.")
 
     with tabs[2]:  # News
-        st.write("News")
-        try:
-            news_df = fetch_stock_news(ticker)
-            for i in range(min(10, len(news_df))):
+    st.write(f"News for {ticker}")
+    try:
+        news_df = fetch_stock_news(ticker)
+        if news_df.empty:
+            st.warning(f"No news articles available for {ticker}.")
+        else:
+            for i in range(len(news_df)):
                 st.subheader(f"{i + 1}. {news_df['title'][i]}")
                 st.write(news_df['published'][i])
                 st.write(news_df['summary'][i])
-        except Exception as e:
-            st.error("Failed to fetch news.")
+                # Add a clickable link for the article
+                if 'link' in news_df.columns and news_df['link'][i]:
+                    st.markdown(f"[Read more]({news_df['link'][i]})", unsafe_allow_html=True)
+    except Exception as e:
+        st.error(f"Failed to fetch news for {ticker}. Error: {e}")
+
 
     with tabs[3]:  # Sentiment Indicator
         st.write(f"Sentiment Indicator for {ticker}")
