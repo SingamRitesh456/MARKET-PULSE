@@ -191,21 +191,21 @@ def marketpulse():
             st.error("Failed to fetch fundamental data.")
 
     with tabs[2]:  # News
-    st.write(f"News for {ticker}")
-    try:
-        news_df = fetch_stock_news(ticker)
-        if news_df.empty:
-            st.warning(f"No news articles available for {ticker}.")
-        else:
-            for i in range(len(news_df)):
-                st.subheader(f"{i + 1}. {news_df['title'][i]}")
-                st.write(news_df['published'][i])
-                st.write(news_df['summary'][i])
-                # Add a clickable link for the article
-                if 'link' in news_df.columns and news_df['link'][i]:
-                    st.markdown(f"[Read more]({news_df['link'][i]})", unsafe_allow_html=True)
-    except Exception as e:
-        st.error(f"Failed to fetch news for {ticker}. Error: {e}")
+        st.write(f"News for {ticker}")
+        try:
+            news_df = fetch_stock_news(ticker)
+            if news_df.empty:
+                st.warning(f"No news articles available for {ticker}.")
+            else:
+                for i in range(len(news_df)):
+                    st.subheader(f"{i + 1}. {news_df['title'][i]}")
+                    st.write(news_df['published'][i])
+                    st.write(news_df['summary'][i])
+                    # Add a clickable link for the article
+                    if 'link' in news_df.columns and news_df['link'][i]:
+                        st.markdown(f"[Read more]({news_df['link'][i]})", unsafe_allow_html=True)
+        except Exception as e:
+            st.error(f"Failed to fetch news for {ticker}. Error: {e}")
 
 
     with tabs[3]:  # Sentiment Indicator
