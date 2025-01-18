@@ -117,8 +117,7 @@ def marketpulse():
             return
 
         if "Adj Close" not in data.columns:
-            st.error("The selected ticker does not provide adjusted close prices. Check the ticker symbol or try another stock.")
-            return
+            data["Adj Close"] = data["Close"]
     except Exception as e:
         st.error(f"Error fetching data: {e}")
         return
@@ -205,28 +204,15 @@ def marketpulse():
 
         if "chat_history" not in st.session_state:
             st.session_state["chat_history"] = []
-        
-        if "chat_submitted" not in st.session_state:
-            st.session_state["chat_submitted"] = False
 
         user_input = st.text_input("You: ", key="user_input")
-        
-        # Check if the user submits a new input
-        if st.button("Ask"):
-            if user_input.strip():  # Only respond if the input is not empty
-                st.session_state.chat_submitted = True  # Mark that a question was submitted
-                response = generate_response(user_input)
-                st.session_state.chat_history.insert(0, {"user": user_input, "bot": response})
-                st.session_state.user_input = ""  # Clear the input field
+        if user_input:
+            response = generate_response(user_input)
+            st.session_state.chat_history.insert(0, {"user": user_input, "bot": response})
 
-        # Display chat history
-        if st.session_state.chat_history:
-            for chat in st.session_state.chat_history:
-                st.markdown(f"**You:** {chat['user']}")
-                st.markdown(f"**Bot:** {chat['bot']}\n---")
-
-        # Reset `chat_submitted` on every page load
-        st.session_state.chat_submitted = False
+        for chat in st.session_state.chat_history:
+            st.markdown(f"**You:** {chat['user']}")
+            st.markdown(f"**Bot:** {chat['bot']}\n---")
 
 # Run the app
 if __name__ == "__main__":
