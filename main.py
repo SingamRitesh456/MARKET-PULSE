@@ -111,6 +111,10 @@ def marketpulse():
         if data.empty:
             st.warning("No data available for the selected ticker and date range.")
             return
+
+        if "Adj Close" not in data.columns:
+            st.error("The selected ticker does not have 'Adj Close' data. Try a different ticker.")
+            return
     except Exception as e:
         st.error(f"Error fetching data: {e}")
         return
@@ -120,16 +124,20 @@ def marketpulse():
         fig = px.line(
             data.reset_index(),
             x="Date",
-            y=data["Adj Close"].values.flatten(),
+            y="Adj Close",
             title=f"{ticker} - Line Chart"
         )
+        st.plotly_chart(fig)
+
     elif chart_type == "Bar Chart":
         fig = px.bar(
             data.reset_index(),
             x="Date",
-            y=data["Adj Close"].values.flatten(),
+            y="Adj Close",
             title=f"{ticker} - Bar Chart"
         )
+        st.plotly_chart(fig)
+
     elif chart_type == "Candlestick Chart":
         fig = go.Figure(
             data=[go.Candlestick(
@@ -141,7 +149,7 @@ def marketpulse():
             )]
         )
         fig.update_layout(title=f"{ticker} - Candlestick Chart")
-    st.plotly_chart(fig)
+        st.plotly_chart(fig)
 
     # Tabs
     tabs = st.tabs(["Pricing Data", "Fundamental Data", "News", "Sentiment Indicator", "Mpulse Chatbot"])
