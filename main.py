@@ -55,6 +55,10 @@ def calculate_rsi(data, window=14):
     return rsi.squeeze()
 
 # Sentiment indicator images
+def load_image_as_base64(image_path):
+    with open(image_path, "rb") as img_file:
+        return base64.b64encode(img_file.read()).decode()
+
 def get_rsi_image(rsi):
     if rsi < 30:
         return "GREEN.png"
@@ -68,7 +72,7 @@ def get_rsi_image(rsi):
         return "RED.png"
 
 # GROQ AI Configuration
-GROQ_API_KEY = "your_groq_ai_key"
+GROQ_API_KEY = "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"
 def generate_response(prompt):
     """Generate response using GROQ AI."""
     headers = {
@@ -96,8 +100,8 @@ def marketpulse():
 
     # Sidebar
     st.sidebar.title("Options")
-    ticker = st.sidebar.text_input("Custom Ticker", value="TSLA").strip()
-    if not ticker:
+    ticker = st.sidebar.text_input("Custom Ticker", value="TSLA")
+    if not ticker.strip():
         st.error("Please enter a valid stock ticker symbol.")
         return
 
