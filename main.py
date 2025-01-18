@@ -199,7 +199,7 @@ def marketpulse():
             st.error("Failed to calculate RSI.")
 
     with tabs[4]:  # Mpulse Chatbot
-       st.title("Mpulse Chatbot")
+        st.title("Mpulse Chatbot")
         st.write("Ask your questions about stock performance, trends, or other topics!")
 
         if "chat_history" not in st.session_state:
