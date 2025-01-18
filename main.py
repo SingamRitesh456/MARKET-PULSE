@@ -43,11 +43,7 @@ def fetch_fundamental_data(ticker):
 # Fetch stock news
 def fetch_stock_news(ticker):
     sn = StockNews(ticker, save_news=False)
-    try:
-        news_df = sn.read_rss()
-        return news_df
-    except Exception as e:
-        raise Exception(f"Failed to fetch news for {ticker}: {e}")
+    return sn.read_rss()
 
 # Calculate RSI
 def calculate_rsi(data, window=14):
@@ -117,13 +113,13 @@ def marketpulse():
     try:
         data = yf.download(ticker, start=start_date, end=end_date)
         if data.empty:
-            st.warning("No data available for the selected ticker and date range.")
+            st.warning(f"No data available for {ticker} for the selected date range.")
             return
 
         if "Adj Close" not in data.columns:
             data["Adj Close"] = data["Close"]
     except Exception as e:
-        st.error(f"Error fetching data: {e}")
+        st.error(f"Error fetching data for {ticker}: {e}")
         return
 
     # Chart rendering
@@ -162,55 +158,46 @@ def marketpulse():
     tabs = st.tabs(["Pricing Data", "Fundamental Data", "News", "Sentiment Indicator", "Mpulse Chatbot"])
 
     with tabs[0]:  # Pricing Data
-        st.write("Pricing Data")
+        st.write(f"Pricing Data for {ticker}")
         st.write(data.describe())
 
     with tabs[1]:  # Fundamental Data
-        st.write("Fundamental Data")
+        st.write(f"Fundamental Data for {ticker}")
         try:
             balance_sheet, income_statement, cash_flow = fetch_fundamental_data(ticker)
-            st.subheader("Balance Sheet")
+            st.subheader(f"Balance Sheet for {ticker}")
             st.write(balance_sheet)
-            st.subheader("Income Statement")
+            st.subheader(f"Income Statement for {ticker}")
             st.write(income_statement)
-            st.subheader("Cash Flow Statement")
+            st.subheader(f"Cash Flow Statement for {ticker}")
             st.write(cash_flow)
         except Exception as e:
-            st.error("Failed to fetch fundamental data.")
+            st.error(f"Failed to fetch fundamental data for {ticker}.")
 
     with tabs[2]:  # News
         st.write(f"News for {ticker}")
         try:
             news_df = fetch_stock_news(ticker)
-            if news_df.empty:
-                st.warning(f"No news available for {ticker}.")
-            else:
-                for i in range(min(10, len(news_df))):
-                    st.subheader(f"{i + 1}. {news_df['title'][i]}")
-                    st.write(news_df['published'][i])
-                    st.write(news_df['summary'][i])
-
-                    # Display Read More link if available
-                    link = news_df.get('link', [None] * len(news_df))[i]
-                    if link:
-                        st.markdown(f"[Read More]({link})", unsafe_allow_html=True)
-                    else:
-                        st.write("No detailed article available.")
+            for i in range(min(10, len(news_df))):
+                st.subheader(f"{i + 1}. {news_df['title'][i]}")
+                st.write(news_df['published'][i])
+                st.write(news_df['summary'][i])
+                st.markdown(f"[Read More]({news_df['link'][i]})", unsafe_allow_html=True)
         except Exception as e:
-            st.error(f"Failed to fetch news for {ticker}: {e}")
+            st.error(f"Failed to fetch news for {ticker}.")
 
     with tabs[3]:  # Sentiment Indicator
-        st.write("Sentiment Indicator")
+        st.write(f"Sentiment Indicator for {ticker}")
         try:
             data['RSI'] = calculate_rsi(data)
             current_rsi = data['RSI'].iloc[-1]
-            st.write(f"RSI: {current_rsi:.2f}")
+            st.write(f"RSI for {ticker}: {current_rsi:.2f}")
 
             # Display corresponding image
             image_file = get_rsi_image(current_rsi)
-            st.image(image_file, caption=f"Sentiment Indicator: {current_rsi:.2f}")
+            st.image(image_file)
         except Exception as e:
-            st.error("Failed to calculate RSI.")
+            st.error(f"Failed to calculate RSI for {ticker}.")
 
     with tabs[4]:  # Mpulse Chatbot
         st.title("Mpulse Chatbot")
