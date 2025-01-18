@@ -197,7 +197,7 @@ def marketpulse():
             if news_df.empty:
                 st.warning(f"No news articles available for {ticker}.")
             else:
-                for i in range(len(news_df)):
+                for i in range(min(10, len(news_df))):
                     st.subheader(f"{i + 1}. {news_df['title'][i]}")
                     st.write(news_df['published'][i])
                     st.write(news_df['summary'][i])
