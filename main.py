@@ -179,19 +179,15 @@ def marketpulse():
             st.error("Failed to fetch fundamental data.")
 
     with tabs[2]:  # News
-        st.write(f"News for {ticker}")
+        st.write("News")
         try:
             news_df = fetch_stock_news(ticker)
-            if news_df.empty:
-                st.warning(f"No news available for {ticker}.")
-            else:
-                for i in range(min(10, len(news_df))):
-                    st.subheader(f"{i + 1}. {news_df['title'].iloc[i]}")
-                    st.write(news_df['published'].iloc[i])
-                    st.write(news_df['summary'].iloc[i])
-                    st.markdown(f"[Read more]({news_df['link'].iloc[i]})")
-        #except Exception as e:
-            #st.error(f"Failed to fetch news for {ticker}.")
+            for i in range(min(10, len(news_df))):
+                st.subheader(f"{i + 1}. {news_df['title'][i]}")
+                st.write(news_df['published'][i])
+                st.write(news_df['summary'][i])
+        except Exception as e:
+            st.error("Failed to fetch news.")
 
     with tabs[3]:  # Sentiment Indicator
         st.write(f"Sentiment Indicator for {ticker}")
