@@ -80,7 +80,7 @@ def get_rsi_image(rsi):
         return "RED.png"
 
 # Retrieve the API key from environment variables (GitHub Secret)
-GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+GROQ_API_KEY = st.secrets("GROQ_API_KEY")
 
 # Ensure the API key is set
 if not GROQ_API_KEY:
