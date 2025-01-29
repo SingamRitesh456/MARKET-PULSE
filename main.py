@@ -125,25 +125,22 @@ def marketpulse():
 
         if "Adj Close" not in data.columns:
             data["Adj Close"] = data["Close"]
+        #Exsure 'Date' column is properly formatted
+        data.reset_index(inplace=True)
+        data.columns = [col[0] if isinstance(col, tuple) else col for col in data.columns]  # Flatten MultiIndex
+        data['Date'] = data['Date'].astype(str)  # Convert to string for Plotly
+        
     except Exception as e:
         st.error(f"Error fetching data: {e}")
         return
 
     # Chart rendering
     if chart_type == "Line Chart":
-        '''fig = px.line(
-            data.reset_index(),
-            x="Date",
+        fig = px.line(
+            data,
+            x=data.columns[0], 
             y="Adj Close",
-            title=f"{ticker} - Line Chart" '''
-            data = data.reset_index()
-            data.columns = [col[0] if isinstance(col, tuple) else col for col in data.columns]  # Flatten MultiIndex
-
-            fig = px.line(
-                data,
-                x=data.columns[0],  # Ensuring correct x-axis
-                y="Adj Close",
-                title=f"{ticker} - Line Chart"
+            title=f"{ticker} - Line Chart"
         )
         st.plotly_chart(fig)
 
