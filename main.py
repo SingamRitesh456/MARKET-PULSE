@@ -7,7 +7,6 @@ import numpy as np
 from alpha_vantage.fundamentaldata import FundamentalData
 from stocknews import StockNews
 import base64
-import os
 import requests
 
 # Page configuration
@@ -79,13 +78,8 @@ def get_rsi_image(rsi):
     else:
         return "RED.png"
 
-# Retrieve the API key from environment variables (GitHub Secret)
-GROQ_API_KEY = st.secrets["GROQ_API_KEY"]
-
-# Ensure the API key is set
-if not GROQ_API_KEY:
-    st.error("Missing API key! Please set GROQ_API_KEY as an environment variable in GitHub Secrets.")
-    
+# GROQ AI Configuration
+GROQ_API_KEY = "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"
 def generate_response(prompt):
     headers = {
         "Authorization": f"Bearer {GROQ_API_KEY}",
