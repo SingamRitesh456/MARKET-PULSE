@@ -131,11 +131,19 @@ def marketpulse():
 
     # Chart rendering
     if chart_type == "Line Chart":
-        fig = px.line(
+        '''fig = px.line(
             data.reset_index(),
             x="Date",
             y="Adj Close",
-            title=f"{ticker} - Line Chart"
+            title=f"{ticker} - Line Chart" '''
+            data = data.reset_index()
+            data.columns = [col[0] if isinstance(col, tuple) else col for col in data.columns]  # Flatten MultiIndex
+
+            fig = px.line(
+                data,
+                x=data.columns[0],  # Ensuring correct x-axis
+                y="Adj Close",
+                title=f"{ticker} - Line Chart"
         )
         st.plotly_chart(fig)
 
