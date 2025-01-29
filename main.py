@@ -79,7 +79,7 @@ def get_rsi_image(rsi):
         return "RED.png"
 
 # GROQ AI Configuration
-GROQ_API_KEY = "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"
+GROQ_API_KEY = "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"
 def generate_response(prompt):
     headers = {
         "Authorization": f"Bearer {GROQ_API_KEY}",
