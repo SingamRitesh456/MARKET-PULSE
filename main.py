@@ -32,6 +32,7 @@ def analyze_stock(ticker):
 def fetch_fundamental_data(ticker):
     stock = yf.Ticker(ticker)
     try:
+        # Fetch financial data
         balance_sheet = stock.balance_sheet
         income_statement = stock.financials
         cash_flow = stock.cashflow
@@ -46,6 +47,7 @@ def fetch_stock_news(ticker):
         news_df = sn.read_rss()
         if news_df.empty:
             return []
+
         filtered_news = news_df[
             (news_df['title'].str.contains(ticker, case=False, na=False)) |
             (news_df['summary'].str.contains(ticker, case=False, na=False))
@@ -87,6 +89,7 @@ def generate_response(prompt):
         "model": "llama3-8b-8192",
         "messages": [{"role": "user", "content": prompt}],
     }
+
     try:
         response = requests.post(
             "https://api.groq.com/openai/v1/chat/completions", json=payload, headers=headers
@@ -103,7 +106,7 @@ def marketpulse():
 
     # Sidebar
     st.sidebar.title("Options")
-    ticker = st.sidebar.text_input("Custom Ticker", value="GOOG")
+    ticker = st.sidebar.text_input("Custom Ticker", value="TSLA")
     if not ticker.strip():
         st.error("Please enter a valid stock ticker symbol.")
         return
@@ -116,36 +119,43 @@ def marketpulse():
     extended_start_date = start_date - timedelta(days=14)
     try:
         data = yf.download(ticker, start=extended_start_date, end=end_date)
-
         if data.empty:
             st.warning("No data available for the selected ticker and date range.")
             return
 
-        # Reset index so 'Date' is an actual column
-        data.reset_index(inplace=True)
-        data['Date'] = data['Date'].astype(str)  # Convert for Plotly compatibility
-
+        if "Adj Close" not in data.columns:
+            data["Adj Close"] = data["Close"]
     except Exception as e:
         st.error(f"Error fetching data: {e}")
         return
 
     # Chart rendering
     if chart_type == "Line Chart":
-        fig = px.line(data, x="Date", y="Adj Close", title=f"{ticker} - Line Chart")
+        fig = px.line(
+            data.reset_index(),
+            x="Date",
+            y="Adj Close",
+            title=f"{ticker} - Line Chart"
+        )
         st.plotly_chart(fig)
 
     elif chart_type == "Bar Chart":
-        fig = px.bar(data, x="Date", y="Adj Close", title=f"{ticker} - Bar Chart")
+        fig = px.bar(
+            data.reset_index(),
+            x="Date",
+            y="Adj Close",
+            title=f"{ticker} - Bar Chart"
+        )
         st.plotly_chart(fig)
 
     elif chart_type == "Candlestick Chart":
         fig = go.Figure(
             data=[go.Candlestick(
-                x=data["Date"],
-                open=data["Open"],
-                high=data["High"],
-                low=data["Low"],
-                close=data["Adj Close"]
+                x=data.index,
+                open=data["Open"].squeeze(),
+                high=data["High"].squeeze(),
+                low=data["Low"].squeeze(),
+                close=data["Adj Close"].squeeze()
             )]
         )
         fig.update_layout(title=f"{ticker} - Candlestick Chart")
@@ -189,11 +199,42 @@ def marketpulse():
 
     with tabs[3]:  # Sentiment Indicator
         st.write(f"Sentiment Indicator for {ticker}")
-        st.write(data['Adj Close'].rolling(14).mean())  # Kept your logic
+        try:
+            if len(data) < 14:
+                st.warning(f"Not enough data points to calculate RSI for {ticker}. Please select a larger date range.")
+            else:
+                data['RSI'] = calculate_rsi(data)
+                current_rsi = data['RSI'].iloc[-1]
+                st.write(f"RSI for {ticker}: {current_rsi:.2f}")
+
+                # Display corresponding image
+                image_file = get_rsi_image(current_rsi)
+                st.image(image_file)
+        except Exception as e:
+            st.error("Failed to calculate RSI.")
 
     with tabs[4]:  # Mpulse Chatbot
-        st.write("Ask about stock performance!")
-        st.text_input("You:", key="user_input")
+        st.title("Mpulse Chatbot")
+        st.write("Ask your questions about stock performance, trends, or other topics!")
+
+        if "chat_history" not in st.session_state:
+            st.session_state["chat_history"] = []
+
+        # Callback function to handle user input
+        def handle_chat_input():
+            user_input = st.session_state["user_input"]
+            if user_input:
+                response = generate_response(user_input)
+                st.session_state.chat_history.insert(0, {"user": user_input, "bot": response})
+                st.session_state["user_input"] = ""  # Clear the input field
+
+        # User input field with on_change callback
+        st.text_input("You:", key="user_input", on_change=handle_chat_input)
+
+        # Display chat history
+        for chat in st.session_state.chat_history:
+            st.markdown(f"**You:** {chat['user']}")
+            st.markdown(f"**Bot:** {chat['bot']}\n---")
 
 # Run the app
 if __name__ == "__main__":
