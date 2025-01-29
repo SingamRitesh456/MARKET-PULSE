@@ -103,7 +103,7 @@ def marketpulse():
 
     # Sidebar
     st.sidebar.title("Options")
-    ticker = st.sidebar.text_input("Custom Ticker", value="TSLA")
+    ticker = st.sidebar.text_input("Custom Ticker", value="GOOG")
     if not ticker.strip():
         st.error("Please enter a valid stock ticker symbol.")
         return
