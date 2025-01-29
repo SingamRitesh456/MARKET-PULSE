@@ -123,13 +123,7 @@ def marketpulse():
 
         # Reset index so 'Date' is an actual column
         data.reset_index(inplace=True)
-
-        # Ensure 'Adj Close' exists
-        if "Adj Close" not in data.columns:
-            data["Adj Close"] = data["Close"]
-
-        # Convert 'Date' column to string for Plotly compatibility
-        data['Date'] = data['Date'].astype(str)
+        data['Date'] = data['Date'].astype(str)  # Convert for Plotly compatibility
 
     except Exception as e:
         st.error(f"Error fetching data: {e}")
@@ -137,21 +131,11 @@ def marketpulse():
 
     # Chart rendering
     if chart_type == "Line Chart":
-        fig = px.line(
-            data,
-            x="Date",
-            y="Adj Close",
-            title=f"{ticker} - Line Chart"
-        )
+        fig = px.line(data, x="Date", y="Adj Close", title=f"{ticker} - Line Chart")
         st.plotly_chart(fig)
 
     elif chart_type == "Bar Chart":
-        fig = px.bar(
-            data,
-            x="Date",
-            y="Adj Close",
-            title=f"{ticker} - Bar Chart"
-        )
+        fig = px.bar(data, x="Date", y="Adj Close", title=f"{ticker} - Bar Chart")
         st.plotly_chart(fig)
 
     elif chart_type == "Candlestick Chart":
@@ -202,6 +186,14 @@ def marketpulse():
                         st.markdown(f"[Read more]({news_df['link'][i]})", unsafe_allow_html=True)
         except Exception as e:
             st.error(f"Failed to fetch news for {ticker}. Error: {e}")
+
+    with tabs[3]:  # Sentiment Indicator
+        st.write(f"Sentiment Indicator for {ticker}")
+        st.write(data['Adj Close'].rolling(14).mean())  # Kept your logic
+
+    with tabs[4]:  # Mpulse Chatbot
+        st.write("Ask about stock performance!")
+        st.text_input("You:", key="user_input")
 
 # Run the app
 if __name__ == "__main__":
