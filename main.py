@@ -11,22 +11,6 @@ import requests
 # Page configuration
 st.set_page_config(layout="wide")
 
-# Stock analysis functions
-def analyze_stock(ticker):
-    try:
-        stock = yf.Ticker(ticker)
-        data = stock.history(period="1y")
-        current_price = data['Close'].iloc[-1]
-        moving_average_50 = data['Close'].rolling(window=50).mean().iloc[-1]
-        moving_average_200 = data['Close'].rolling(window=200).mean().iloc[-1]
-        return {
-            "current_price": current_price,
-            "moving_average_50": moving_average_50,
-            "moving_average_200": moving_average_200
-        }
-    except Exception as e:
-        return {"error": f"Error fetching stock data: {e}"}
-
 # Fetch fundamental data
 def fetch_fundamental_data(ticker):
     stock = yf.Ticker(ticker)
